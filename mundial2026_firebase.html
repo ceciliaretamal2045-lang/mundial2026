@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>⚽ Mundial 2026 — Yeye vs Nano</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;900&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"Montserrat",sans-serif;background:#060f1e;color:#fff;min-height:100vh}
+
+.header{background:#0a1e3d;border-bottom:4px solid #b22234;padding:14px 20px;text-align:center;position:sticky;top:0;z-index:100}
+.header h1{font-size:18px;font-weight:900;letter-spacing:3px;text-transform:uppercase}
+.header p{font-size:10px;letter-spacing:3px;color:#7a9cc4;text-transform:uppercase;margin-top:2px}
+
+.scoreboard{background:#b22234;padding:14px 20px;position:relative;overflow:hidden}
+.scoreboard::before{}
+.score-inner{max-width:700px;margin:0 auto;display:grid;grid-template-columns:1fr 50px 1fr;align-items:center;position:relative;z-index:1}
+.player{text-align:center}
+.player-name{font-size:10px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,.6);margin-bottom:2px}
+.player-pts{font-size:44px;font-weight:900;color:#fff;line-height:1}
+.vs-div{text-align:center;font-size:10px;font-weight:700;color:rgba(255,255,255,.4)}
+.leader-bar{background:#0f2d5e;text-align:center;padding:6px;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#7ab3e0;display:none}
+.sync-bar{background:#051428;border-bottom:1px solid rgba(74,122,181,.15);padding:5px 20px;text-align:center;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:rgba(74,122,181,.5)}
+.sync-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:#1e6b32;margin-right:5px;vertical-align:middle}
+.sync-dot.off{background:#6b1e26}
+
+/* TABS */
+.tabs-wrap{background:#0a1e3d;border-bottom:1px solid rgba(255,255,255,.07);position:sticky;top:76px;z-index:99}
+.tabs{max-width:700px;margin:0 auto;display:flex;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{flex-shrink:0;padding:10px 14px;font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,.35);cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;white-space:nowrap;position:relative}
+.tab.active{color:#fff;border-bottom-color:#b22234}
+.tab .tab-count{position:absolute;top:6px;right:6px;background:#b22234;color:#fff;font-size:8px;font-weight:700;border-radius:8px;padding:1px 4px;min-width:14px;text-align:center;display:none}
+.tab.has-matches .tab-count{display:block}
+
+.content{max-width:700px;margin:0 auto;padding:16px}
+
+/* FORMULARIO */
+.form-card{background:#0d1f3c;border:1px solid rgba(74,122,181,.25);border-radius:10px;padding:16px;margin-bottom:20px}
+.form-title{font-size:10px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#4a7ab5;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.form-title::after{content:"";flex:1;height:1px;background:rgba(74,122,181,.2)}
+.form-row{display:grid;gap:8px;margin-bottom:10px}
+.form-row.r3{grid-template-columns:1fr 1fr 1fr}
+.form-row.r3b{grid-template-columns:1.4fr 1fr 1fr}
+@media(max-width:480px){.form-row.r3,.form-row.r3b{grid-template-columns:1fr 1fr}.form-row.r3 .span2,.form-row.r3b .span2{grid-column:1/-1}}
+.form-label{font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#4a7ab5;margin-bottom:4px}
+.form-input{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:6px;padding:8px 10px;color:#fff;font-family:"Montserrat",sans-serif;font-size:12px;font-weight:600;width:100%;outline:none;transition:border-color .15s}
+.form-input:focus{border-color:#3a72c4;background:rgba(58,114,196,.1)}
+.form-input::placeholder{color:rgba(255,255,255,.2);font-weight:400}
+select.form-input{cursor:pointer;appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%234a7ab5'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:28px}
+select.form-input option{background:#0d1f3c;color:#fff}
+.btn-add{width:100%;padding:11px;background:#b22234;border:none;border-radius:8px;color:#fff;font-family:"Montserrat",sans-serif;font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:background .2s}
+.btn-add:hover{background:#8f1a28}
+.btn-add:disabled{background:rgba(178,34,52,.3);cursor:not-allowed}
+
+/* LISTA */
+.match-thead{display:grid;grid-template-columns:1fr 76px 76px 70px 48px;gap:6px;padding:0 10px 6px}
+@media(max-width:480px){.match-thead{grid-template-columns:1fr 64px 64px 60px 40px;gap:4px}}
+.col-th{font-size:8px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(74,122,181,.5);text-align:center}
+.col-th:first-child{text-align:left}
+
+.match{background:#0d1f3c;border-radius:8px;border:1px solid rgba(255,255,255,.07);overflow:hidden;margin-bottom:7px}
+.match-head{background:rgba(255,255,255,.04);padding:5px 10px;display:flex;justify-content:space-between;align-items:center}
+.match-date{font-size:9px;color:rgba(255,255,255,.35);letter-spacing:1px;text-transform:uppercase}
+.match-body{padding:8px 10px;display:grid;grid-template-columns:1fr 76px 76px 70px 48px;gap:6px;align-items:center}
+@media(max-width:480px){.match-body{grid-template-columns:1fr 64px 64px 60px 40px;gap:4px}}
+.match-name{font-size:11px;font-weight:600;color:#cdd8ea;line-height:1.3}
+.pred-input{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:6px;padding:5px 4px;color:#fff;font-family:"Montserrat",sans-serif;font-size:11px;font-weight:700;width:100%;text-align:center;outline:none;transition:border-color .15s}
+.pred-input:focus{border-color:#3a72c4;background:rgba(58,114,196,.1)}
+.result-input{background:rgba(178,34,52,.1);border:1px solid rgba(178,34,52,.3);border-radius:6px;padding:5px 4px;color:#e87585;font-family:"Montserrat",sans-serif;font-size:11px;font-weight:700;width:100%;text-align:center;outline:none}
+.result-input:focus{border-color:#b22234}
+.pts-wrap{display:flex;gap:3px;justify-content:center}
+.pt{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0}
+.pt-exact{background:#0e3d28;color:#f0c040;border:1px solid #b8960c}
+.pt-win{background:#133d1f;color:#3ecf5e;border:1px solid #1e6b32}
+.pt-loss{background:#3a0d13;color:#e87585;border:1px solid #6b1e26}
+.pt-empty{background:rgba(255,255,255,.04);color:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.07)}
+
+.empty-state{text-align:center;padding:32px;color:rgba(74,122,181,.35);font-size:12px;letter-spacing:1px;line-height:1.8}
+.btn-del{background:none;border:none;color:rgba(255,255,255,.15);font-size:16px;cursor:pointer;padding:4px 6px;transition:color .2s;line-height:1;flex-shrink:0}
+.btn-del:hover{color:#e87585}
+.flash{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:#0f2d5e;border:1px solid rgba(74,122,181,.4);border-radius:20px;padding:6px 16px;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#7ab3e0;opacity:0;transition:opacity .3s;pointer-events:none;z-index:300}
+.flash.show{opacity:1}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>⚽ Mundial 2026</h1>
+  <p>Yeye vs Nano — USA · México · Canadá</p>
+</div>
+
+<div class="scoreboard">
+  <div class="score-inner">
+    <div class="player"><div class="player-name">Yeye</div><div class="player-pts" id="pts-yeye">0</div></div>
+    <div class="vs-div">pts</div>
+    <div class="player"><div class="player-name">Nano</div><div class="player-pts" id="pts-nano">0</div></div>
+  </div>
+</div>
+<div class="leader-bar" id="leader-bar"></div>
+<div class="sync-bar"><span class="sync-dot" id="sync-dot"></span><span id="sync-text">Conectando...</span></div>
+
+<div class="tabs-wrap"><div class="tabs" id="tabs"></div></div>
+
+<div class="content">
+  <!-- FORMULARIO — solo visible en pestaña Agregar -->
+  <div class="form-card" id="form-section" style="display:none">
+    <div class="form-title">➕ Nuevo partido</div>
+    <div class="form-row r3">
+      <div>
+        <div class="form-label">Local</div>
+        <input class="form-input" id="f-local" placeholder="ej: Argentina">
+      </div>
+      <div>
+        <div class="form-label">Visita</div>
+        <input class="form-input" id="f-visita" placeholder="ej: Francia">
+      </div>
+      <div>
+        <div class="form-label">Fecha</div>
+        <input class="form-input" id="f-fecha" type="date">
+      </div>
+    </div>
+    <div class="form-row r3b">
+      <div class="span2">
+        <div class="form-label">Grupo / Fase</div>
+        <select class="form-input" id="f-grupo">
+          <option value="">— Seleccionar —</option>
+          <option>Grupo A</option><option>Grupo B</option><option>Grupo C</option>
+          <option>Grupo D</option><option>Grupo E</option><option>Grupo F</option>
+          <option>Grupo G</option><option>Grupo H</option><option>Grupo I</option>
+          <option>Grupo J</option><option>Grupo K</option><option>Grupo L</option>
+          <option>Ronda de 32</option><option>Octavos de Final</option>
+          <option>Cuartos de Final</option><option>Semifinal</option>
+          <option>Tercer Lugar</option><option>🏆 Final</option>
+        </select>
+      </div>
+      <div>
+        <div class="form-label">Pred. Yeye</div>
+        <input class="form-input" id="f-yeye" placeholder="2-1">
+      </div>
+      <div>
+        <div class="form-label">Pred. Nano</div>
+        <input class="form-input" id="f-nano" placeholder="1-0">
+      </div>
+    </div>
+    <button class="btn-add" id="btn-add" onclick="addMatch()">Agregar partido</button>
+  </div>
+
+  <div id="matches-list"></div>
+</div>
+
+<div class="flash" id="flash"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getDatabase, ref, onValue, push, update, remove } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAPBB-yDLfvuPBHw2KEIHWOZpPiyfTY2pw",
+  authDomain: "mundial2026-c4ea3.firebaseapp.com",
+  databaseURL: "https://mundial2026-c4ea3-default-rtdb.firebaseio.com",
+  projectId: "mundial2026-c4ea3",
+  storageBucket: "mundial2026-c4ea3.firebasestorage.app",
+  messagingSenderId: "1025678139921",
+  appId: "1:1025678139921:web:34c13c3cf5ab4eee9cc7b0"
+};
+
+const app = initializeApp(firebaseConfig);
+const db  = getDatabase(app);
+const ROOT = ref(db, "partidos");
+
+// ── FASES EN ORDEN ────────────────────────────────────────────────────────────
+const FASE_ORDER = [
+  "Grupo A","Grupo B","Grupo C","Grupo D","Grupo E","Grupo F",
+  "Grupo G","Grupo H","Grupo I","Grupo J","Grupo K","Grupo L",
+  "Ronda de 32","Octavos de Final","Cuartos de Final",
+  "Semifinal","Tercer Lugar","🏆 Final"
+];
+
+// ── STATE ─────────────────────────────────────────────────────────────────────
+let allData = {};
+let activeTab = "➕ Agregar";
+
+// ── SCORING ───────────────────────────────────────────────────────────────────
+function parseScore(s){
+  if(!s) return null;
+  const m=s.trim().match(/^(\d+)\s*[-–]\s*(\d+)$/);
+  return m?{l:parseInt(m[1]),v:parseInt(m[2])}:null;
+}
+function sign(sc){return sc.l>sc.v?"L":sc.l<sc.v?"V":"E";}
+function calcPts(pred,result){
+  if(!result||!pred) return null;
+  const r=parseScore(result),p=parseScore(pred);
+  if(!r) return null; if(!p) return 0;
+  if(p.l===r.l&&p.v===r.v) return 2;
+  if(sign(p)===sign(r)) return 1;
+  return 0;
+}
+function ptBadge(pts){
+  if(pts===null) return `<div class="pt pt-empty">–</div>`;
+  if(pts===2)    return `<div class="pt pt-exact">2</div>`;
+  if(pts===1)    return `<div class="pt pt-win">1</div>`;
+  return `<div class="pt pt-loss">0</div>`;
+}
+function totalPts(player){
+  return Object.values(allData).reduce((acc,m)=>{
+    const p=player==="yeye"?m.yeye:m.nano;
+    return acc+(calcPts(p||"",m.result||"")||0);
+  },0);
+}
+function updateScoreboard(){
+  const y=totalPts("yeye"),n=totalPts("nano");
+  document.getElementById("pts-yeye").textContent=y;
+  document.getElementById("pts-nano").textContent=n;
+  const bar=document.getElementById("leader-bar");
+  if(y+n===0){bar.style.display="none";return;}
+  bar.style.display="block";
+  bar.textContent=y>n?"🥇 Yeye va ganando":n>y?"🥇 Nano va ganando":"🤝 Empate técnico";
+}
+
+// ── TABS ──────────────────────────────────────────────────────────────────────
+function getGroups(){
+  const groups=new Set();
+  Object.values(allData).forEach(m=>{ if(m.grupo) groups.add(m.grupo); });
+  return FASE_ORDER.filter(f=>groups.has(f));
+}
+
+function renderTabs(){
+  const groups=getGroups();
+  const tabs=["➕ Agregar",...groups];
+  // Si activeTab ya no existe (nuevo), default a Agregar
+  if(!tabs.includes(activeTab)) activeTab="➕ Agregar";
+
+  const countByGroup={};
+  Object.values(allData).forEach(m=>{ if(m.grupo) countByGroup[m.grupo]=(countByGroup[m.grupo]||0)+1; });
+
+  document.getElementById("tabs").innerHTML=tabs.map(t=>{
+    const count=countByGroup[t]||0;
+    const hasMatches=count>0;
+    return `<div class="tab${t===activeTab?" active":""}${hasMatches?" has-matches":""}" onclick="switchTab('${t.replace(/'/g,"\'")}')">
+      ${t}
+      ${hasMatches?`<span class="tab-count">${count}</span>`:""}
+    </div>`;
+  }).join("");
+}
+
+window.switchTab=function(id){
+  activeTab=id;
+  renderTabs();
+  renderContent();
+  window.scrollTo({top:0,behavior:"smooth"});
+};
+
+// ── RENDER CONTENT ────────────────────────────────────────────────────────────
+const THEAD=`<div class="match-thead">
+  <div class="col-th">Partido</div>
+  <div class="col-th">Yeye</div>
+  <div class="col-th">Nano</div>
+  <div class="col-th">Resultado</div>
+  <div class="col-th">Pts</div>
+</div>`;
+
+function renderContent(){
+  const formSection=document.getElementById("form-section");
+  const list=document.getElementById("matches-list");
+
+  if(activeTab==="➕ Agregar"){
+    formSection.style.display="block";
+    const groups=getGroups();
+    if(groups.length===0){
+      list.innerHTML=`<div class="empty-state">Aún no hay partidos<br>Agrega el primero con el formulario de arriba ⬆️</div>`;
+    } else {
+      // Resumen rápido de grupos
+      list.innerHTML=`<div style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(74,122,181,.5);text-align:center;padding:8px 0;">
+        ${groups.length} grupo${groups.length>1?"s":""} · ${Object.keys(allData).length} partidos ingresados
+      </div>`;
+    }
+    return;
+  }
+
+  formSection.style.display="none";
+
+  // Filtrar partidos del grupo activo
+  const entries=Object.entries(allData).filter(([,m])=>m.grupo===activeTab);
+  if(entries.length===0){
+    list.innerHTML=`<div class="empty-state">No hay partidos en ${activeTab}</div>`;
+    return;
+  }
+
+  // Ordenar por fecha
+  entries.sort((a,b)=>{
+    const da=a[1].fecha||"",db2=b[1].fecha||"";
+    return da<db2?-1:da>db2?1:0;
+  });
+
+  list.innerHTML=THEAD+entries.map(([key,m])=>{
+    const yPts=calcPts(m.yeye||"",m.result||"");
+    const nPts=calcPts(m.nano||"",m.result||"");
+    return `
+<div class="match">
+  <div class="match-head">
+    <span class="match-date">${formatDate(m.fecha)}</span>
+  </div>
+  <div class="match-body">
+    <div class="match-name">${m.local||""} vs ${m.visita||""}</div>
+    <div><input class="pred-input" type="text" value="${m.yeye||""}" placeholder="2-1"
+      data-key="${key}" data-field="yeye" oninput="window.onFieldInput(this)"></div>
+    <div><input class="pred-input" type="text" value="${m.nano||""}" placeholder="2-1"
+      data-key="${key}" data-field="nano" oninput="window.onFieldInput(this)"></div>
+    <div><input class="result-input" type="text" value="${m.result||""}" placeholder="Final"
+      data-key="${key}" data-field="result" oninput="window.onFieldInput(this)"></div>
+    <div class="pts-wrap" id="pts_${key}">${ptBadge(yPts)}${ptBadge(nPts)}</div>
+  </div>
+  <div style="padding:0 10px 8px;text-align:right">
+    <button class="btn-del" onclick="window.delMatch('${key}')" title="Borrar partido">✕ borrar</button>
+  </div>
+</div>`;
+  }).join("");
+}
+
+function formatDate(iso){
+  if(!iso) return "";
+  try{
+    const d=new Date(iso+"T12:00:00");
+    return d.toLocaleDateString("es-CL",{day:"numeric",month:"short"}).toUpperCase();
+  }catch(e){return iso;}
+}
+
+// ── INPUT ─────────────────────────────────────────────────────────────────────
+let saveTimers={};
+window.onFieldInput=function(input){
+  const key=input.dataset.key,field=input.dataset.field,val=input.value;
+  if(!allData[key]) allData[key]={};
+  allData[key][field]=val;
+  const d=allData[key];
+  const wrap=document.getElementById("pts_"+key);
+  if(wrap) wrap.innerHTML=ptBadge(calcPts(d.yeye||"",d.result||""))+ptBadge(calcPts(d.nano||"",d.result||""));
+  updateScoreboard();
+  clearTimeout(saveTimers[key]);
+  saveTimers[key]=setTimeout(()=>{
+    const u={};u[`partidos/${key}/${field}`]=val;
+    update(ref(db,"/"),u).then(()=>showFlash("Guardado ✓")).catch(()=>showFlash("Error"));
+  },800);
+};
+
+// ── AGREGAR ───────────────────────────────────────────────────────────────────
+window.addMatch=function(){
+  const local=document.getElementById("f-local").value.trim();
+  const visita=document.getElementById("f-visita").value.trim();
+  const fecha=document.getElementById("f-fecha").value;
+  const grupo=document.getElementById("f-grupo").value;
+  const yeye=document.getElementById("f-yeye").value.trim();
+  const nano=document.getElementById("f-nano").value.trim();
+  if(!local||!visita){showFlash("Completa Local y Visita");return;}
+  if(!grupo){showFlash("Selecciona el Grupo o Fase");return;}
+  const btn=document.getElementById("btn-add");
+  btn.disabled=true;
+  push(ROOT,{local,visita,fecha,grupo,yeye,nano,result:""})
+    .then(()=>{
+      ["f-local","f-visita","f-yeye","f-nano"].forEach(id=>document.getElementById(id).value="");
+      document.getElementById("f-fecha").value="";
+      // Ir a la pestaña del grupo recién agregado
+      activeTab=grupo;
+      showFlash("Partido agregado ✓");
+      btn.disabled=false;
+    })
+    .catch(()=>{showFlash("Error — revisa Firebase");btn.disabled=false;});
+};
+
+// ── FIREBASE ──────────────────────────────────────────────────────────────────
+onValue(ROOT,(snap)=>{
+  const activeKey=document.activeElement?.dataset?.key;
+  const activeField=document.activeElement?.dataset?.field;
+  const selStart=document.activeElement?.selectionStart;
+
+  allData=snap.val()||{};
+  document.getElementById("sync-dot").className="sync-dot";
+  document.getElementById("sync-text").textContent="Sincronizado en tiempo real";
+
+  renderTabs();
+  renderContent();
+  updateScoreboard();
+
+  if(activeKey&&activeField){
+    const el=document.querySelector(`[data-key="${activeKey}"][data-field="${activeField}"]`);
+    if(el){el.focus();try{el.setSelectionRange(selStart,selStart);}catch(e){}}
+  }
+},(err)=>{
+  document.getElementById("sync-dot").className="sync-dot off";
+  document.getElementById("sync-text").textContent="Sin conexión — revisa Firebase";
+});
+
+// ── BORRAR ────────────────────────────────────────────────────────────────────
+window.delMatch=function(key){
+  if(!confirm("¿Borrar este partido?")) return;
+  remove(ref(db,"partidos/"+key))
+    .then(()=>showFlash("Partido borrado"))
+    .catch(()=>showFlash("Error al borrar"));
+};
+
+// ── FLASH ──────────────────────────────────────────────────────────────────────
+function showFlash(msg){
+  const el=document.getElementById("flash");
+  el.textContent=msg;el.classList.add("show");
+  setTimeout(()=>el.classList.remove("show"),1800);
+}
+
+["f-local","f-visita","f-yeye","f-nano"].forEach(id=>{
+  document.getElementById(id)?.addEventListener("keydown",e=>{if(e.key==="Enter")window.addMatch();});
+});
+</script>
+</body>
+</html>
